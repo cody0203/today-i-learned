@@ -486,3 +486,278 @@ else
     p "adult"
 end                  # "little child"
 ```
+
+# 7. Methods
+
+## 7.1. Introduction
+
+- Method của Ruby tương tự so với function của Js, cũng có tên, nhận vào 1 số input, thực hiện 1 số logic và trả về kết quả.
+- Method thường được đặt tên theo dạng snake_case và viết thường.
+
+## 7.1.1. Syntax
+
+```ruby
+def method_name(arg)
+	# code here
+end
+```
+
+### 7.1.2. Example
+
+```ruby
+def print_name(name)
+	p "My name is #{name}"
+end
+
+print_name("Cody")       # "Cody"
+```
+
+## 7.2. Method arguments
+
+### 7.2.1. Index arguments
+
+- Arguments của Ruby có 1 số kiểu như sau: index arguments, keyword arguments, rest arguments.
+    - Tương tự Js.
+
+    ```ruby
+    def sumNum(num1, num2)
+    	p num1 + num2
+    end
+    sumNum(1, 2)            # 3
+    ```
+
+    - Khai báo default value argument của index arguments:
+
+    ```ruby
+    def sumNum(num1 = 2, num2 = 4)
+    	p num1 + num2
+    end
+    sumNum(1)               # 5
+    ```
+
+### 7.2.2. Keyword arguments
+
+- Giống như việc truyền 1 param là object vào method của Js, tuy nhiên cách khai báo lại hơi khác. Nếu sử dụng keyword argument thì bắt buộc phải khai báo default value cho keyword, nếu không thì behavior sẽ sai
+- Cách khai báo default value của keyword arguments cũng khác với index arguments.
+- Như example dưới, nếu không khai báo default value thì argument của method sẽ nhận vào là 1 hash.
+
+```ruby
+def foo(bar: 'foo')
+  bar
+end
+
+p foo(bar: 'baz') # => 'baz'
+
+def foo2(bar)
+  bar
+end
+
+p foo2(bar: 'baz') # => {:bar=>"baz"}
+```
+
+### 7.2.3. Rest argument
+
+- Cũng tương tự như bên Js, nếu có nhiều argument thì rest argument sẽ khai báo ở cuối cùng.
+- Có 2 cách gọi restArgs trong method, mỗi cách sẽ return 1 kiểu value khác nhau.
+
+```ruby
+def foo(a, b, *restArgs)
+    p *restArgs          # 3 4 5 6
+		p restArgs           # [3, 4, 5, 6]
+end
+foo(1, 2, 3, 4, 5, 6)    
+```
+
+## 7.3. Method returning value
+
+### 7.3.1. Introduction
+
+- Method của Ruby sẽ return giá trị của câu lệnh cuối cùng trong method, keyword return là optional nên có thể dùng hoặc không.
+- Trong trường hợp muốn kết thúc method thì có thể dùng return như js.
+
+### 7.3.2. Example
+
+```ruby
+def sumNum(x, y)
+    p x + y
+end
+
+sumNum(1, 2)         # 3
+
+def sumNum2(x, y)
+    return p x + y
+end
+
+sumNum2(3, 4)        # 7
+
+def sumNum3(x, y)
+    return p "Return here" if x < 3
+    p x + y
+end
+
+sumNum3(2, 5)       # "Return here"
+```
+
+## 7.4. Class method and instance method
+
+### 7.4.1. Introduction
+
+- Class method là method của 1 class, class đó có thể execute trực tiếp method.
+- Instance method là method của instance của 1 class, class không thể execute trực tiếp được method đó mà phải thông qua 1 instance.
+- Nếu gọi method của class thông qua instance hoặc ngược lại thì sẽ báo lỗi undefined vì method không tồn tại.
+- Class method và instance method cũng có 1 vài cách khai báo khác nhau.
+
+### 7.4.2. Example
+
+```ruby
+# Class method
+class Foo
+    def self.bar_one
+        p "This is class method 1"
+    end
+    
+    class << self
+        def bar_two
+            p "This is class method 2"
+        end
+    end
+end
+
+Foo.bar_one # "This is class method 1"
+Foo.bar_two # "This is class method 2"
+```
+
+```ruby
+class Foo
+    attr_accessor :baz
+    def bar_one
+        p "This is instance method 1"
+    end
+end
+
+foo = Foo.new
+foo.bar_one   # "This is instance method 1"
+
+foo.baz = "This is instance method 2"
+p foo.baz     # "This is instance method 2"
+```
+
+## 7.5. Block, Proc, Lambda
+
+### 7.5.1. Block
+
+**7.5.1.1. Introduction**
+
+- Block được khởi tạo bằng do, kết thúc bằng end hoặc trong 1 cặp ngoặc nhọn {}.
+- Block có thể có nhiều args.
+- Tên của args được khai báo bên trong cặp pipe | |.
+- Block thường được dùng với các iterators.
+
+```ruby
+1.upto(10) { |x| p x } # 1 2 3 4 5 6 7 8 9 10
+1.upto(10) do |x|
+    p x * 2            # 2 4 6 8 10 12 14 16 18 20
+end
+```
+
+**7.5.1.2. Implicit block**
+
+- Block có thể được truyền vào làm param là method. Block ở trong method có thể được Ruby ngầm hiểu (implicit) và có thể được execute bằng keyword yield mà không cần khai báo args.
+
+```ruby
+def hello
+    yield
+end
+
+hello do
+    puts " Implicit block"
+end
+
+def sumNum
+    p yield + 3  # 6
+end
+
+sumNum do
+    1 + 2
+end
+```
+
+**7.5.1.3. Explicit block**
+
+- Ngược lại với implicit, explicit block sẽ là kiểu khai báo arg của block cho method.
+- Khai báo arg cho block sẽ có dạng `def method_name(&block)` .
+- Nếu param truyền vào là 1 block thường thì Ruby sẽ convert block này sang Proc object bằng `to_proc` nên khi sử dụng .class thì lúc này sẽ thấy result là Proc và không cần sử dụng yield nữa mà có thể dùng call để gọi block này.
+
+```ruby
+def hello(&block)
+    p block.class          # Proc
+    block.call             # Implicit block
+end
+
+hello do
+    puts " Implicit block"
+end
+```
+
+### 7.5.2. Proc
+
+- Proc là 1 instance của class Proc, chứa 1 block code.
+- Proc có thể assign vào biến, block thì k thể.
+
+```ruby
+sumNum = Proc.new { | x, y | x + y }
+
+p sumNum.call(1, 2)
+```
+
+### 7.5.3. Lambda
+
+- Lambda là 1 anonymous function (không có tên).
+- Lambda cũng là 1 instance của class Proc, chức năng tương tự như proc.
+
+```ruby
+square = lambda {|n| n ** 2}
+p square.call(2)  # 4
+p square.class    # Proc
+```
+
+### 7.5.4. Proc vs Lambda
+
+- Cả Proc và Lambda đều là instance của class Proc.
+- Lambda sẽ kiểm tra số lượng arg truyền vào trong khi Proc thì không.
+
+```ruby
+lam = lambda { | x | p x }
+lam.call(2)                # 2
+lam.call                   # wrong number of args error
+lam.call(1,2,3)            # wrong number of args error
+
+proc = Proc.new { | x | p x }
+proc.call(2)               # 2
+proc.call                  # nil
+proc.call(1,2,3)           # 1
+```
+
+- Return của lambda với proc cũng có behavior khác nhau. Ví dụ cùng trong method thì nếu return trong lambda, code bên dưới lambda vẫn sẽ được execute còn với proc thì không.
+
+```ruby
+def lambda_test
+    lam = lambda { return p "Lambda return" }
+    lam.call
+    p "End lambda test method"
+end
+
+def proc_test
+    proc = Proc.new { return p "Proc return" }
+    proc.call
+    p "End proc test method"
+end
+
+lambda_test
+proc_test
+
+# Result
+"Lambda return"
+"End lambda test method"
+"Proc return"
+```
